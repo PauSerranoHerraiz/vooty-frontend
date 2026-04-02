@@ -1,10 +1,62 @@
-function CreatePoll(){
+import { useState } from "react";
+import { createPoll } from "../api/polls";
+import { useNavigate } from "react-router-dom";
 
-    return(
-        <>
-        <h1>This is the page to create a poll</h1>
-        </>
-    )
-}
+const CreatePoll = () => {
+  const [question, setQuestion] = useState("");
+  const [options, setOptions] = useState(["", ""]);
+  const navigate = useNavigate();
 
-export default CreatePoll
+  const handleOptionChange = (value, index) => {
+    const newOptions = [...options];
+    newOptions[index] = value;
+    setOptions(newOptions);
+  };
+
+  const addOption = () => {
+    setOptions([...options, ""]);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const filteredOptions = options.filter(opt => opt.trim() !== "");
+
+    await createPoll(question, filteredOptions);
+
+    navigate("/");
+  };
+
+  return (
+    <div>
+      <h1>Crear encuesta</h1>
+
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Pregunta"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+        />
+
+        {options.map((opt, index) => (
+          <input
+            key={index}
+            type="text"
+            placeholder={`Opción ${index + 1}`}
+            value={opt}
+            onChange={(e) => handleOptionChange(e.target.value, index)}
+          />
+        ))}
+
+        <button type="button" onClick={addOption}>
+          + Añadir opción
+        </button>
+
+        <button type="submit">Crear encuesta</button>
+      </form>
+    </div>
+  );
+};
+
+export default CreatePoll;
